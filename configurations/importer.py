@@ -33,17 +33,22 @@ def install(check_options=False):
             orig_create_parser = base.BaseCommand.create_parser
 
             def create_parser(self, prog_name, subcommand):
+                def _option_already_registered(command):
+                    options_list = command.option_list
+                    configuration_option = [option for option in options_list if option.dest == 'configuration']
+                    return len(configuration_option) > 0
                 parser = orig_create_parser(self, prog_name, subcommand)
-                if isinstance(parser, OptionParser):
-                    # in case the option_list is set the create_parser
-                    # will actually return a OptionParser for backward
-                    # compatibility. It uses BaseCommand.use_argparse
-                    # to decide that, which checks for the option_list list
-                    base.BaseCommand.option_list += configuration_options
-                else:
-                    # probably argparse, let's not import argparse though
-                    parser.add_argument(CONFIGURATION_ARGUMENT,
-                                        help=CONFIGURATION_ARGUMENT_HELP)
+                if not _option_already_registered(self):
+                    if isinstance(parser, OptionParser):
+                        # in case the option_list is set the create_parser
+                        # will actually return a OptionParser for backward
+                        # compatibility. It uses BaseCommand.use_argparse
+                        # to decide that, which checks for the option_list list
+                        base.BaseCommand.option_list += configuration_options
+                    else:
+                        # probably argparse, let's not import argparse though
+                        parser.add_argument(CONFIGURATION_ARGUMENT,
+                                            help=CONFIGURATION_ARGUMENT_HELP)
                 return parser
 
             base.BaseCommand.create_parser = create_parser
