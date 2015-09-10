@@ -44,7 +44,8 @@ def install(check_options=False):
                         # will actually return a OptionParser for backward
                         # compatibility. It uses BaseCommand.use_argparse
                         # to decide that, which checks for the option_list list
-                        base.BaseCommand.option_list += configuration_options
+                        for option in configuration_options:
+                            parser.add_option(option)
                     else:
                         # probably argparse, let's not import argparse though
                         parser.add_argument(CONFIGURATION_ARGUMENT,
